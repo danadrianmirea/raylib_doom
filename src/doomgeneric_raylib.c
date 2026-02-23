@@ -84,43 +84,44 @@ uint32_t DG_GetTicksMs()
 
 int DG_GetKey(int* pressed, unsigned char* key)
 {
-    // Return one keypress event at a time. Return 0 when no events available.
-    int k = GetKeyPressed();
-    if (k == 0) return 0;
+    // Track only the relevant keys for Doom
+    static struct {
+        int raylib_code;
+        unsigned char doom_code;
+        int state; // 1 = currently pressed, 0 = not pressed
+    } keys[] = {
+        {KEY_A, 'a', 0}, {KEY_B, 'b', 0}, {KEY_C, 'c', 0}, {KEY_D, 'd', 0},
+        {KEY_E, 'e', 0}, {KEY_F, 'f', 0}, {KEY_G, 'g', 0}, {KEY_H, 'h', 0},
+        {KEY_I, 'i', 0}, {KEY_J, 'j', 0}, {KEY_K, 'k', 0}, {KEY_L, 'l', 0},
+        {KEY_M, 'm', 0}, {KEY_N, 'n', 0}, {KEY_O, 'o', 0}, {KEY_P, 'p', 0},
+        {KEY_Q, 'q', 0}, {KEY_R, 'r', 0}, {KEY_S, 's', 0}, {KEY_T, 't', 0},
+        {KEY_U, 'u', 0}, {KEY_V, 'v', 0}, {KEY_W, 'w', 0}, {KEY_X, 'x', 0},
+        {KEY_Y, 'y', 0}, {KEY_Z, 'z', 0},
+        {KEY_ZERO, '0', 0}, {KEY_ONE, '1', 0}, {KEY_TWO, '2', 0}, {KEY_THREE, '3', 0},
+        {KEY_FOUR, '4', 0}, {KEY_FIVE, '5', 0}, {KEY_SIX, '6', 0}, {KEY_SEVEN, '7', 0},
+        {KEY_EIGHT, '8', 0}, {KEY_NINE, '9', 0},
+        {KEY_SPACE, 0xa2, 0}, {KEY_ENTER, 13, 0}, {KEY_TAB, 9, 0},
+        {KEY_BACKSPACE, 0x7f, 0}, {KEY_ESCAPE, 27, 0},
+        {KEY_UP, 0xad, 0}, {KEY_DOWN, 0xaf, 0}, {KEY_LEFT, 0xac, 0}, {KEY_RIGHT, 0xae, 0},
+        {KEY_LEFT_SHIFT, 0x80 + 0x36, 0}, {KEY_RIGHT_SHIFT, 0x80 + 0x36, 0},
+        {KEY_LEFT_CONTROL, 0xa3, 0}, {KEY_RIGHT_CONTROL, 0xa3, 0},
+        {KEY_LEFT_ALT, 0x80 + 0x38, 0}, {KEY_RIGHT_ALT, 0x80 + 0x38, 0},
+        {-1, 0, 0} // sentinel
+    };
 
-    // By convention return only key-down events (pressed = 1)
-    *pressed = 1;
-
-    // Map raylib key codes to simple ASCII or doom-specific codes
-    if (k >= KEY_A && k <= KEY_Z)
-    {
-        *key = (unsigned char)tolower((int)k);
-        return 1;
-    }
-
-    if (k >= KEY_ZERO && k <= KEY_NINE)
-    {
-        // KEY_ZERO..KEY_NINE are ASCII '0'..'9' in raylib
-        *key = (unsigned char)k;
-        return 1;
-    }
-
-    switch (k)
-    {
-        case KEY_SPACE: *key = ' '; return 1;
-        case KEY_ENTER: *key = 13; return 1;        /* Doom KEY_ENTER */
-        case KEY_TAB: *key = 9; return 1;           /* Doom KEY_TAB */
-        case KEY_BACKSPACE: *key = 0x7f; return 1; /* Doom KEY_BACKSPACE */
-        case KEY_ESCAPE: *key = 27; return 1;      /* Doom KEY_ESCAPE */
-        case KEY_RIGHT: *key = 0xae; return 1;     /* Doom KEY_RIGHTARROW */
-        case KEY_LEFT: *key = 0xac; return 1;      /* Doom KEY_LEFTARROW */
-        case KEY_UP: *key = 0xad; return 1;        /* Doom KEY_UPARROW */
-        case KEY_DOWN: *key = 0xaf; return 1;      /* Doom KEY_DOWNARROW */
-        default:
-            // Unknown key: return as zero so caller ignores it
-            *key = 0;
+    // Check for state changes
+    for (int i = 0; keys[i].raylib_code != -1; ++i) {
+        int cur = IsKeyDown(keys[i].raylib_code) ? 1 : 0;
+                
+        if (cur != keys[i].state) {
+            keys[i].state = cur;
+            *pressed = cur;
+            *key = keys[i].doom_code;
             return 1;
+        }
     }
+
+    return 0;
 }
 
 void DG_SetWindowTitle(const char * title)
