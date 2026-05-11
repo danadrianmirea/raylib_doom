@@ -1,31 +1,43 @@
-```markdown
-A minimalistic raylib template for VSCode
+# Raylib Doom
 
-```
+A [doomgeneric](https://github.com/ozkl/doomgeneric) port that renders Doom through [raylib](https://www.raylib.com/).
 
-## CMake Build
+## Prerequisites
 
-This project includes a simple CMake build. You can build with an installed CMake (recommended >= 3.15).
+- [raylib](https://www.raylib.com/) (tested with 5.5)
+- CMake >= 3.15
+- A Doom IWAD file (`doom1.wad`, `doom2.wad`, etc.) placed in `src/`
 
-- Example using MinGW (PowerShell):
+## Build
 
 ```powershell
 mkdir build
 cd build
 cmake -G "MinGW Makefiles" -DRAYLIB_PATH="C:/raylib/raylib" ..
-cmake --build . --config Debug
-```
-
-- If you have a raylib CMake package installed, you can omit `-DRAYLIB_PATH` and CMake will attempt to find it.
-
-- To change the build type (Release/Debug):
-
-```powershell
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DRAYLIB_PATH="C:/raylib/raylib" ..
 cmake --build . --config Release
 ```
 
-Notes:
-- On Windows with MinGW, the example assumes raylib headers/libs are under `C:/raylib/raylib`.
-- If the project can't find raylib, set `-DRAYLIB_PATH` to your local raylib installation path.
-A minimalistic raylib template for VSCode
+If raylib is installed as a CMake package, `-DRAYLIB_PATH` can be omitted.
+
+## Controls
+
+Standard Doom key bindings:
+
+| Action          | Key              |
+|-----------------|------------------|
+| Move forward    | Up / W           |
+| Move backward   | Down / S         |
+| Strafe left     | A                |
+| Strafe right    | D                |
+| Turn left       | Left             |
+| Turn right      | Right            |
+| Fire            | Left Ctrl        |
+| Open / Use      | Space / Enter    |
+| Weapon select   | 1-7              |
+| Map             | Tab              |
+
+## Sound
+
+Sound effects play through raylib's audio subsystem. Doom's DMX-format sound lumps are converted to 16-bit PCM at 22050 Hz on load. 16 audio channels are available with per-channel volume and panning.
+
+Music playback is not supported — raylib's audio backend does not handle MIDI/MUS natively.
